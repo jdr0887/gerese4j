@@ -28,6 +28,8 @@ public class DownloadAndSerializeReferenceSequences implements Callable<File> {
 
     private static final Logger logger = LoggerFactory.getLogger(DownloadAndSerializeReferenceSequences.class);
 
+    private static final BuildType buildType = BuildType.BUILD_36_1;
+
     public DownloadAndSerializeReferenceSequences() {
         super();
     }
@@ -36,12 +38,12 @@ public class DownloadAndSerializeReferenceSequences implements Callable<File> {
     public File call() throws Exception {
         logger.debug("ENTERING execute()");
 
-        File serializationDir = new File("src/main/resources/org/renci/gerese4j");
+        File serializationDir = new File("src/main/resources/org/renci/gerese4j/build_36_1");
         if (!serializationDir.exists()) {
             serializationDir.mkdirs();
         }
 
-        File serFile = new File(serializationDir, String.format("reference_sequences_%s.ser", BuildType.BUILD_36_1.getVersion()));
+        File serFile = new File(serializationDir, String.format("reference_sequences_%s.ser", buildType.getVersion()));
 
         Map<String, ReferenceSequence> fastaSequenceMap = new HashMap<>();
 
@@ -49,8 +51,13 @@ public class DownloadAndSerializeReferenceSequences implements Callable<File> {
 
         try {
 
-            File tmpDir = new File(System.getProperty("java.io.tmpdir"));
-            File readme = FTPFactory.ncbiDownload(tmpDir, "/genomes/H_sapiens/ARCHIVE/BUILD.36.1", "README_CURRENT_BUILD");
+            File tmpDir = new File(System.getProperty("java.io.tmpdir"), buildType.getVersion());
+            if (!tmpDir.exists()) {
+                tmpDir.mkdirs();
+            }
+
+            File readme = FTPFactory.ncbiDownload(tmpDir, String.format("/genomes/H_sapiens/ARCHIVE/BUILD.%s", buildType.getVersion()),
+                    "README_CURRENT_BUILD");
             logger.info("Downloaded readme to: {}", readme.getAbsolutePath());
 
             List<String> lines = FileUtils.readLines(readme, "UTF-8");
@@ -75,17 +82,18 @@ public class DownloadAndSerializeReferenceSequences implements Callable<File> {
 
             String shortName = String.format("%s.%s", build, patch);
 
-            File fastaOutputDir = new File(tmpDir, shortName);
-            if (!fastaOutputDir.exists()) {
-                fastaOutputDir.mkdirs();
+            if (!shortName.equals(buildType.getVersion())) {
+                logger.error("buildType & shortName don't match up");
+                return null;
             }
 
-            List<File> pulledFiles = FTPFactory.ncbiDownloadFiles(fastaOutputDir,
-                    "/genomes/H_sapiens/ARCHIVE/BUILD.36.1/Assembled_chromosomes", "hs_ref_", ".fa.gz");
-            pulledFiles.addAll(
-                    FTPFactory.ncbiDownloadFiles(fastaOutputDir, "/genomes/H_sapiens/ARCHIVE/BUILD.36.1/CHR_Un", "hs_ref_", ".fa.gz"));
-            pulledFiles.addAll(
-                    FTPFactory.ncbiDownloadFiles(fastaOutputDir, "/genomes/H_sapiens/ARCHIVE/BUILD.36.1/CHR_MT", "hs_ref_", ".fa.gz"));
+            List<File> pulledFiles = FTPFactory.ncbiDownloadFiles(tmpDir,
+                    String.format("/genomes/H_sapiens/ARCHIVE/BUILD.%s/Assembled_chromosomes", buildType.getVersion()), "hs_ref_",
+                    ".fa.gz");
+            pulledFiles.addAll(FTPFactory.ncbiDownloadFiles(tmpDir,
+                    String.format("/genomes/H_sapiens/ARCHIVE/BUILD.%s/CHR_Un", buildType.getVersion()), "hs_ref_", ".fa.gz"));
+            pulledFiles.addAll(FTPFactory.ncbiDownloadFiles(tmpDir,
+                    String.format("/genomes/H_sapiens/ARCHIVE/BUILD.%s/CHR_MT", buildType.getVersion()), "hs_ref_", ".fa.gz"));
 
             for (File f : pulledFiles) {
                 logger.info(f.getName());
@@ -102,6 +110,7 @@ public class DownloadAndSerializeReferenceSequences implements Callable<File> {
                         if (line.startsWith(">")) {
                             String[] idParts = line.split("\\|");
                             genomeRefAccession = idParts[3];
+                            logger.info(genomeRefAccession);
                             if (fastaSequence != null) {
                                 fastaSequenceMap.put(genomeRefAccession, fastaSequence);
                             }
