@@ -8,7 +8,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.renci.gerese4j</groupId>
   <artifactId>gerese4j-build-37-2</artifactId>
-  <version>37.2</version>
+  <version>1.0.0</version>
   <packaging>bundle</packaging>
   <properties>
     <maven.site.plugin.skip>true</maven.site.plugin.skip>    
