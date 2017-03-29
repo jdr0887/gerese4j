@@ -28,6 +28,8 @@ public class DownloadAndSerializeReferenceSequences implements Callable<File> {
 
     private static final Logger logger = LoggerFactory.getLogger(DownloadAndSerializeReferenceSequences.class);
 
+    private static final BuildType buildType = BuildType.BUILD_38_7;
+
     public DownloadAndSerializeReferenceSequences() {
         super();
     }
@@ -41,7 +43,7 @@ public class DownloadAndSerializeReferenceSequences implements Callable<File> {
             serializationDir.mkdirs();
         }
 
-        File serFile = new File(serializationDir, String.format("reference_sequences_%s.ser", BuildType.BUILD_38_7.getVersion()));
+        File serFile = new File(serializationDir, String.format("reference_sequences_%s.ser", buildType.getVersion()));
 
         Map<String, ReferenceSequence> fastaSequenceMap = new HashMap<>();
 
@@ -49,7 +51,10 @@ public class DownloadAndSerializeReferenceSequences implements Callable<File> {
 
         try {
 
-            File tmpDir = new File(System.getProperty("java.io.tmpdir"));
+            File tmpDir = new File(System.getProperty("java.io.tmpdir"), buildType.getVersion());
+            if (!tmpDir.exists()) {
+                tmpDir.mkdirs();
+            }
             File readme = FTPFactory.ncbiDownload(tmpDir, "/genomes/H_sapiens", "README_CURRENT_RELEASE");
             logger.info("Downloaded readme to: {}", readme.getAbsolutePath());
 
@@ -75,15 +80,15 @@ public class DownloadAndSerializeReferenceSequences implements Callable<File> {
 
             String shortName = String.format("%s.%s", build, patch);
 
-            File fastaOutputDir = new File(tmpDir, shortName);
-            if (!fastaOutputDir.exists()) {
-                fastaOutputDir.mkdirs();
+            if (!shortName.equals(buildType.getVersion())) {
+                logger.error("buildType & shortName don't match up");
+                return null;
             }
 
-            List<File> pulledFiles = FTPFactory.ncbiDownloadFiles(fastaOutputDir, "/genomes/H_sapiens/Assembled_chromosomes/seq", "hs_ref_",
+            List<File> pulledFiles = FTPFactory.ncbiDownloadFiles(tmpDir, "/genomes/H_sapiens/Assembled_chromosomes/seq", "hs_ref_",
                     ".fa.gz");
-            pulledFiles.addAll(FTPFactory.ncbiDownloadFiles(fastaOutputDir, "/genomes/H_sapiens/CHR_Un", "hs_ref_", ".fa.gz"));
-            pulledFiles.addAll(FTPFactory.ncbiDownloadFiles(fastaOutputDir, "/genomes/H_sapiens/CHR_MT", "hs_ref_", ".fa.gz"));
+            pulledFiles.addAll(FTPFactory.ncbiDownloadFiles(tmpDir, "/genomes/H_sapiens/CHR_Un", "hs_ref_", ".fa.gz"));
+            pulledFiles.addAll(FTPFactory.ncbiDownloadFiles(tmpDir, "/genomes/H_sapiens/CHR_MT", "hs_ref_", ".fa.gz"));
 
             for (File f : pulledFiles) {
                 logger.info(f.getName());
@@ -100,6 +105,7 @@ public class DownloadAndSerializeReferenceSequences implements Callable<File> {
                         if (line.startsWith(">")) {
                             String[] idParts = line.split("\\|");
                             genomeRefAccession = idParts[3];
+                            logger.info(genomeRefAccession);
                             if (fastaSequence != null) {
                                 fastaSequenceMap.put(genomeRefAccession, fastaSequence);
                             }
