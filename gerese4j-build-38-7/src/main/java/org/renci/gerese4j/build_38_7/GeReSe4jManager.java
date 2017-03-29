@@ -39,8 +39,7 @@ public class GeReSe4jManager {
 
     private void init() {
         long start = System.currentTimeMillis();
-        try (InputStream is = getClass().getClassLoader()
-                .getResourceAsStream(String.format("org/renci/gerese4j/reference_sequences_%s.ser", getBuild().getVersion()));
+        try (InputStream is = getClass().getResourceAsStream(String.format("reference_sequences_%s.ser", getBuild().getVersion()));
                 GZIPInputStream gzipis = new GZIPInputStream(is, Double.valueOf(Math.pow(2, 16)).intValue());
                 ObjectInputStream ois = new ObjectInputStream(gzipis)) {
             referenceSequenceMap = (Map<String, ReferenceSequence>) ois.readObject();
@@ -48,7 +47,7 @@ public class GeReSe4jManager {
             logger.error(e.getMessage(), e);
         }
         long end = System.currentTimeMillis();
-        System.out.println(String.format("duration: %d seconds", (end - start) / 1000));
+        logger.info("duration: {} seconds", (end - start) / 1000);
     }
 
     public Map<String, ReferenceSequence> getReferenceSequenceMap() {
@@ -91,9 +90,9 @@ public class GeReSe4jManager {
         ReferenceSequence referenceSequence = this.referenceSequenceMap.get(accession);
 
         if (zeroBased) {
-            return referenceSequence.getSequence().substring(range.getMinimum(), range.getMaximum());
+            return referenceSequence.getSequence().substring(range.getMinimum() - 1, range.getMaximum());
         } else {
-            return referenceSequence.getSequence().substring(range.getMinimum() + 1, range.getMaximum() + 1);
+            return referenceSequence.getSequence().substring(range.getMinimum(), range.getMaximum() + 1);
         }
     }
 
