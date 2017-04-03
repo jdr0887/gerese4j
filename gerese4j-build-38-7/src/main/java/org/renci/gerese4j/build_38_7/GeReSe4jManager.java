@@ -84,9 +84,9 @@ public class GeReSe4jManager {
         ReferenceSequence referenceSequence = this.referenceSequenceCache.get(accession);
 
         if (zeroBased) {
-            return referenceSequence.getSequence().substring(idx, idx + 1);
+            return referenceSequence.getSequence().substring(idx - 1, idx);
         } else {
-            return referenceSequence.getSequence().substring(idx + 1, idx + 2);
+            return referenceSequence.getSequence().substring(idx, idx + 1);
         }
     }
 
