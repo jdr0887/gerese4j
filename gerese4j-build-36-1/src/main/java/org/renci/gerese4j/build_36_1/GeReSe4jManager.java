@@ -2,10 +2,12 @@ package org.renci.gerese4j.build_36_1;
 
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
-import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.Range;
 import org.renci.gerese4j.core.BuildType;
 import org.renci.gerese4j.core.GeReSe4jException;
@@ -17,7 +19,9 @@ public class GeReSe4jManager {
 
     private static final Logger logger = LoggerFactory.getLogger(GeReSe4jManager.class);
 
-    private Map<String, ReferenceSequence> referenceSequenceMap = null;
+    private Set<String> indexSet = null;
+
+    private final Map<String, ReferenceSequence> referenceSequenceCache = new HashMap<>();
 
     private static GeReSe4jManager instance;
 
@@ -38,37 +42,46 @@ public class GeReSe4jManager {
     }
 
     private void init() {
-        long start = System.currentTimeMillis();
-        try (InputStream is = getClass().getResourceAsStream(String.format("reference_sequences_%s.ser", getBuild().getVersion()));
+        logger.debug("ENTERING init()");
+        try (InputStream is = getClass().getResourceAsStream("refseq_index.ser");
                 GZIPInputStream gzipis = new GZIPInputStream(is, Double.valueOf(Math.pow(2, 16)).intValue());
                 ObjectInputStream ois = new ObjectInputStream(gzipis)) {
-            referenceSequenceMap = (Map<String, ReferenceSequence>) ois.readObject();
+            indexSet = (Set<String>) ois.readObject();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
-        long end = System.currentTimeMillis();
-        logger.info("duration: {} seconds", (end - start) / 1000);
     }
 
-    public Map<String, ReferenceSequence> getReferenceSequenceMap() {
-        return referenceSequenceMap;
+    public Set<String> getIndexSet() {
+        return indexSet;
     }
 
-    public void setReferenceSequenceMap(Map<String, ReferenceSequence> referenceSequenceMap) {
-        this.referenceSequenceMap = referenceSequenceMap;
+    public void setIndexSet(Set<String> indexSet) {
+        this.indexSet = indexSet;
     }
 
     public String getBase(String accession, int idx, boolean zeroBased) throws GeReSe4jException {
+        logger.debug("ENTERING getBase()");
 
-        if (MapUtils.isEmpty(referenceSequenceMap)) {
-            throw new GeReSe4jException("ReferenceSequence is empty");
+        if (CollectionUtils.isEmpty(indexSet)) {
+            throw new GeReSe4jException("No indices found");
         }
 
-        if (!this.referenceSequenceMap.containsKey(accession)) {
-            throw new GeReSe4jException(String.format("ReferenceSequence not found using: %s", accession));
+        if (!indexSet.contains(accession)) {
+            throw new GeReSe4jException("No accession found in indexList");
         }
 
-        ReferenceSequence referenceSequence = this.referenceSequenceMap.get(accession);
+        if (!this.referenceSequenceCache.containsKey(accession)) {
+            try (InputStream is = getClass().getResourceAsStream(String.format("%s.ser", accession));
+                    GZIPInputStream gzipis = new GZIPInputStream(is, Double.valueOf(Math.pow(2, 16)).intValue());
+                    ObjectInputStream ois = new ObjectInputStream(gzipis)) {
+                this.referenceSequenceCache.put(accession, (ReferenceSequence) ois.readObject());
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+
+        ReferenceSequence referenceSequence = this.referenceSequenceCache.get(accession);
 
         if (zeroBased) {
             return referenceSequence.getSequence().substring(idx, idx + 1);
@@ -78,16 +91,27 @@ public class GeReSe4jManager {
     }
 
     public String getRegion(String accession, Range<Integer> range, boolean zeroBased) throws GeReSe4jException {
+        logger.debug("ENTERING getRegion()");
 
-        if (MapUtils.isEmpty(referenceSequenceMap)) {
-            throw new GeReSe4jException("ReferenceSequence is empty");
+        if (CollectionUtils.isEmpty(indexSet)) {
+            throw new GeReSe4jException("No indices found");
         }
 
-        if (!this.referenceSequenceMap.containsKey(accession)) {
-            throw new GeReSe4jException(String.format("ReferenceSequence not found using: %s", accession));
+        if (!indexSet.contains(accession)) {
+            throw new GeReSe4jException("No accession found in indexList");
         }
 
-        ReferenceSequence referenceSequence = this.referenceSequenceMap.get(accession);
+        if (!this.referenceSequenceCache.containsKey(accession)) {
+            try (InputStream is = getClass().getResourceAsStream(String.format("%s.ser", accession));
+                    GZIPInputStream gzipis = new GZIPInputStream(is, Double.valueOf(Math.pow(2, 16)).intValue());
+                    ObjectInputStream ois = new ObjectInputStream(gzipis)) {
+                this.referenceSequenceCache.put(accession, (ReferenceSequence) ois.readObject());
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+
+        ReferenceSequence referenceSequence = this.referenceSequenceCache.get(accession);
 
         if (zeroBased) {
             return referenceSequence.getSequence().substring(range.getMinimum() - 1, range.getMaximum());

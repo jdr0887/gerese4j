@@ -7,11 +7,11 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -24,7 +24,7 @@ import org.renci.gerese4j.core.ReferenceSequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DownloadAndSerializeReferenceSequences implements Callable<File> {
+public class DownloadAndSerializeReferenceSequences implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(DownloadAndSerializeReferenceSequences.class);
 
@@ -35,16 +35,17 @@ public class DownloadAndSerializeReferenceSequences implements Callable<File> {
     }
 
     @Override
-    public File call() throws Exception {
-        logger.debug("ENTERING execute()");
+    public void run() {
+        logger.debug("ENTERING run()");
 
-        File serializationDir = new File("src/main/resources/org/renci/gerese4j");
+        File serializationDir = new File("src/main/resources/org/renci/gerese4j/build_37_1");
         if (!serializationDir.exists()) {
             serializationDir.mkdirs();
         }
 
-        File serFile = new File(serializationDir, String.format("reference_sequences_%s.ser", buildType.getVersion()));
+        File serIndexFile = new File(serializationDir, "refseq_index.ser");
 
+        Set<String> referenceSequenceIndexSet = new HashSet<>();
         Map<String, ReferenceSequence> fastaSequenceMap = new HashMap<>();
 
         long start = System.currentTimeMillis();
@@ -77,14 +78,14 @@ public class DownloadAndSerializeReferenceSequences implements Callable<File> {
 
             if (StringUtils.isEmpty(build) || StringUtils.isEmpty(patch)) {
                 logger.error("build or patch was empty");
-                return null;
+                return;
             }
 
             String shortName = String.format("%s.%s", build, patch);
 
             if (!shortName.equals(buildType.getVersion())) {
                 logger.error("buildType & shortName don't match up");
-                return null;
+                return;
             }
 
             List<File> pulledFiles = FTPFactory.ncbiDownloadFiles(tmpDir,
@@ -111,6 +112,7 @@ public class DownloadAndSerializeReferenceSequences implements Callable<File> {
                             String[] idParts = line.split("\\|");
                             genomeRefAccession = idParts[3];
                             logger.info(genomeRefAccession);
+                            referenceSequenceIndexSet.add(genomeRefAccession);
                             if (fastaSequence != null) {
                                 fastaSequenceMap.put(genomeRefAccession, fastaSequence);
                             }
@@ -132,11 +134,21 @@ public class DownloadAndSerializeReferenceSequences implements Callable<File> {
 
             pulledFiles.forEach(a -> a.delete());
 
-            try (FileOutputStream fos = new FileOutputStream(serFile);
+            try (FileOutputStream fos = new FileOutputStream(serIndexFile);
                     GZIPOutputStream gzipos = new GZIPOutputStream(fos, Double.valueOf(Math.pow(2, 14)).intValue());
                     ObjectOutputStream oos = new ObjectOutputStream(gzipos)) {
-                oos.writeObject(fastaSequenceMap);
-                logger.info("serialized Map<String, ReferenceSequence> to: {}", serFile.getAbsolutePath());
+                oos.writeObject(referenceSequenceIndexSet);
+                logger.info("serialized index file to: {}", serIndexFile.getAbsolutePath());
+            }
+
+            for (String key : fastaSequenceMap.keySet()) {
+                File serFile = new File(serializationDir, String.format("%s.ser", key));
+                try (FileOutputStream fos = new FileOutputStream(serFile);
+                        GZIPOutputStream gzipos = new GZIPOutputStream(fos, Double.valueOf(Math.pow(2, 14)).intValue());
+                        ObjectOutputStream oos = new ObjectOutputStream(gzipos)) {
+                    oos.writeObject(fastaSequenceMap.get(key));
+                    logger.info("serialized ReferenceSequence to: {}", serFile.getAbsolutePath());
+                }
             }
 
         } catch (Exception e) {
@@ -145,17 +157,9 @@ public class DownloadAndSerializeReferenceSequences implements Callable<File> {
 
         long end = System.currentTimeMillis();
         logger.info("duration = {}", String.format("%d seconds", (end - start) / 1000));
-
-        return serFile;
     }
 
     public static void main(String[] args) {
-        try {
-            DownloadAndSerializeReferenceSequences callable = new DownloadAndSerializeReferenceSequences();
-            File serFile = Executors.newSingleThreadExecutor().submit(callable).get();
-            logger.info("serialized to: {}", serFile.getAbsolutePath());
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
+        Executors.newSingleThreadExecutor().execute(new DownloadAndSerializeReferenceSequences());
     }
 }
