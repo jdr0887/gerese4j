@@ -19,13 +19,16 @@ public class Scratch {
         logger.info("finish initializing");
 
         // grabbed these hgvs expressions from clinvar
-        assertTrue("C".equals(gereseMgr.getBase("NC_000004.11", 4861958, false)));
+        assertTrue("C".equals(gereseMgr.getBase("NC_000004.11", 4861958, true)));
         logger.info("finished search for NC_000004.11:g.4861958C>A");
 
-        assertTrue("G".equals(gereseMgr.getBase("NC_000008.10", 67091182, false)));
+        assertTrue("G".equals(gereseMgr.getBase("NC_000008.10", 67091182, true)));
         logger.info("finished search for NC_000008.10:g.67091182G>T");
 
-        assertTrue("G".equals(gereseMgr.getBase("NC_000019.9", 41859120, false)));
+        assertTrue("G".equals(gereseMgr.getBase("NC_000019.9", 41859120, true)));
+        logger.info("finished search for NC_000019.9:g.41859120delG");
+
+        assertTrue("G".equals(gereseMgr.getBase("NC_000014.8", 23871743, true)));
         logger.info("finished search for NC_000019.9:g.41859120delG");
 
         assertTrue("AGCAGCAGC".equals(gereseMgr.getRegion("NC_000019.9", Range.between(41858912, 41858920), true)));
