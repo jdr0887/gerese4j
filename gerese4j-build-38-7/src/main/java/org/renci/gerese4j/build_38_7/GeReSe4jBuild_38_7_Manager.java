@@ -56,8 +56,8 @@ public class GeReSe4jBuild_38_7_Manager {
         return indexSet;
     }
 
-    public void setIndexSet(Set<String> indexSet) {
-        this.indexSet = indexSet;
+    public Map<String, ReferenceSequence> getReferenceSequenceCache() {
+        return referenceSequenceCache;
     }
 
     public String getBase(String accession, int idx, boolean zeroBased) throws GeReSe4jException {
