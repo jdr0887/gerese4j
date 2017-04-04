@@ -65,8 +65,11 @@ public class GeReSe4jBuild_37_2_Manager {
         return indices;
     }
 
-    public Map<String, String> getHeaders() {
-        return headers;
+    public String getHeader(String accession) throws GeReSe4jException {
+        if (!headers.containsKey(accession)) {
+            throw new GeReSe4jException("No accession found");
+        }
+        return headers.get(accession);
     }
 
     public Map<String, ReferenceSequence> getReferenceSequenceCache() {
