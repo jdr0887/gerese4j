@@ -12,7 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -150,15 +152,22 @@ public class DownloadAndSerializeReferenceSequences implements Runnable {
                 logger.info("serialized headers file to: {}", headersFile.getAbsolutePath());
             }
 
+            ExecutorService es = Executors.newFixedThreadPool(2);
             for (String key : fastaSequenceMap.keySet()) {
-                File serFile = new File(serializationDir, String.format("%s.ser", key));
-                try (FileOutputStream fos = new FileOutputStream(serFile);
-                        GZIPOutputStream gzipos = new GZIPOutputStream(fos, Double.valueOf(Math.pow(2, 14)).intValue());
-                        ObjectOutputStream oos = new ObjectOutputStream(gzipos)) {
-                    oos.writeObject(fastaSequenceMap.get(key));
-                    logger.info("serialized ReferenceSequence to: {}", serFile.getAbsolutePath());
-                }
+                es.submit(() -> {
+                    File serFile = new File(serializationDir, String.format("%s.ser", key));
+                    try (FileOutputStream fos = new FileOutputStream(serFile);
+                            GZIPOutputStream gzipos = new GZIPOutputStream(fos, Double.valueOf(Math.pow(2, 14)).intValue());
+                            ObjectOutputStream oos = new ObjectOutputStream(gzipos)) {
+                        oos.writeObject(fastaSequenceMap.get(key));
+                        logger.info("serialized ReferenceSequence to: {}", serFile.getAbsolutePath());
+                    } catch (Exception e) {
+                        logger.error(e.getMessage(), e);
+                    }
+                });
             }
+            es.shutdown();
+            es.awaitTermination(20L, TimeUnit.MINUTES);
 
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
