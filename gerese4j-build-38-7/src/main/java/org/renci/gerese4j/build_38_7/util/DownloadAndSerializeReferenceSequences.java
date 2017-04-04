@@ -43,9 +43,11 @@ public class DownloadAndSerializeReferenceSequences implements Runnable {
             serializationDir.mkdirs();
         }
 
-        File serIndexFile = new File(serializationDir, "refseq_index.ser");
+        File indicesFile = new File(serializationDir, "indices.ser");
+        File headersFile = new File(serializationDir, "headers.ser");
 
-        Set<String> referenceSequenceIndexSet = new HashSet<>();
+        Set<String> indices = new HashSet<>();
+        Map<String, String> headers = new HashMap<>();
         Map<String, ReferenceSequence> fastaSequenceMap = new HashMap<>();
 
         long start = System.currentTimeMillis();
@@ -106,8 +108,9 @@ public class DownloadAndSerializeReferenceSequences implements Runnable {
                         if (line.startsWith(">")) {
                             String[] idParts = line.split("\\|");
                             genomeRefAccession = idParts[3];
-                            referenceSequenceIndexSet.add(genomeRefAccession);
                             logger.info(genomeRefAccession);
+                            indices.add(genomeRefAccession);
+                            headers.put(genomeRefAccession, line.replaceAll(">", "").trim());
                             if (fastaSequence != null) {
                                 fastaSequenceMap.put(genomeRefAccession, fastaSequence);
                             }
@@ -129,11 +132,18 @@ public class DownloadAndSerializeReferenceSequences implements Runnable {
 
             pulledFiles.forEach(a -> a.delete());
 
-            try (FileOutputStream fos = new FileOutputStream(serIndexFile);
+            try (FileOutputStream fos = new FileOutputStream(indicesFile);
                     GZIPOutputStream gzipos = new GZIPOutputStream(fos, Double.valueOf(Math.pow(2, 14)).intValue());
                     ObjectOutputStream oos = new ObjectOutputStream(gzipos)) {
-                oos.writeObject(referenceSequenceIndexSet);
-                logger.info("serialized index file to: {}", serIndexFile.getAbsolutePath());
+                oos.writeObject(indices);
+                logger.info("serialized indices file to: {}", indicesFile.getAbsolutePath());
+            }
+
+            try (FileOutputStream fos = new FileOutputStream(headersFile);
+                    GZIPOutputStream gzipos = new GZIPOutputStream(fos, Double.valueOf(Math.pow(2, 14)).intValue());
+                    ObjectOutputStream oos = new ObjectOutputStream(gzipos)) {
+                oos.writeObject(headers);
+                logger.info("serialized headers file to: {}", headersFile.getAbsolutePath());
             }
 
             for (String key : fastaSequenceMap.keySet()) {

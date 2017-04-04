@@ -3,11 +3,11 @@ package org.renci.gerese4j.build_38_7;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.Range;
 import org.renci.gerese4j.core.BuildType;
 import org.renci.gerese4j.core.GeReSe4jException;
@@ -19,7 +19,9 @@ public class GeReSe4jBuild_38_7_Manager {
 
     private static final Logger logger = LoggerFactory.getLogger(GeReSe4jBuild_38_7_Manager.class);
 
-    private Set<String> indexSet = null;
+    private Set<String> indices = new HashSet<>();
+
+    private Map<String, String> headers = new HashMap<>();
 
     private final Map<String, ReferenceSequence> referenceSequenceCache = new HashMap<>();
 
@@ -43,17 +45,28 @@ public class GeReSe4jBuild_38_7_Manager {
 
     private void init() {
         logger.debug("ENTERING init()");
-        try (InputStream is = getClass().getResourceAsStream("refseq_index.ser");
+        try (InputStream is = getClass().getResourceAsStream("indices.ser");
                 GZIPInputStream gzipis = new GZIPInputStream(is, Double.valueOf(Math.pow(2, 16)).intValue());
                 ObjectInputStream ois = new ObjectInputStream(gzipis)) {
-            indexSet = (Set<String>) ois.readObject();
+            indices.addAll((Set<String>) ois.readObject());
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+        try (InputStream is = getClass().getResourceAsStream("headers.ser");
+                GZIPInputStream gzipis = new GZIPInputStream(is, Double.valueOf(Math.pow(2, 16)).intValue());
+                ObjectInputStream ois = new ObjectInputStream(gzipis)) {
+            headers.putAll((Map<String, String>) ois.readObject());
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
     }
 
-    public Set<String> getIndexSet() {
-        return indexSet;
+    public Set<String> getIndices() {
+        return indices;
+    }
+
+    public Map<String, String> getHeaders() {
+        return headers;
     }
 
     public Map<String, ReferenceSequence> getReferenceSequenceCache() {
@@ -63,12 +76,8 @@ public class GeReSe4jBuild_38_7_Manager {
     public String getBase(String accession, int idx, boolean zeroBased) throws GeReSe4jException {
         logger.debug("ENTERING getBase()");
 
-        if (CollectionUtils.isEmpty(indexSet)) {
-            throw new GeReSe4jException("No indices found");
-        }
-
-        if (!indexSet.contains(accession)) {
-            throw new GeReSe4jException("No accession found in indexList");
+        if (!indices.contains(accession)) {
+            throw new GeReSe4jException("No accession found");
         }
 
         if (!this.referenceSequenceCache.containsKey(accession)) {
@@ -93,12 +102,8 @@ public class GeReSe4jBuild_38_7_Manager {
     public String getRegion(String accession, Range<Integer> range, boolean zeroBased) throws GeReSe4jException {
         logger.debug("ENTERING getRegion()");
 
-        if (CollectionUtils.isEmpty(indexSet)) {
-            throw new GeReSe4jException("No indices found");
-        }
-
-        if (!indexSet.contains(accession)) {
-            throw new GeReSe4jException("No accession found in indexList");
+        if (!indices.contains(accession)) {
+            throw new GeReSe4jException("No accession found");
         }
 
         if (!this.referenceSequenceCache.containsKey(accession)) {
