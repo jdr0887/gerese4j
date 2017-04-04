@@ -189,8 +189,11 @@
   <modules>
     <module>gerese4j-core</module>
     <module>gerese4j-build-36-1</module>
+    <module>gerese4j-build-36-2</module>
+    <module>gerese4j-build-36-3</module>    
     <module>gerese4j-build-37-1</module>
     <module>gerese4j-build-37-2</module>
+    <module>gerese4j-build-37-3</module>    
     <module>gerese4j-build-38-7</module>        
   </modules>
 </project>
