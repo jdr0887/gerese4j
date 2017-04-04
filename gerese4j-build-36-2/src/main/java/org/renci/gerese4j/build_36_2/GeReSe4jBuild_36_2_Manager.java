@@ -76,6 +76,25 @@ public class GeReSe4jBuild_36_2_Manager {
         return referenceSequenceCache;
     }
 
+    public ReferenceSequence getReferenceSequence(String accession) throws GeReSe4jException {
+
+        if (!indices.contains(accession)) {
+            throw new GeReSe4jException("No accession found");
+        }
+
+        if (!this.referenceSequenceCache.containsKey(accession)) {
+            try (InputStream is = getClass().getResourceAsStream(String.format("%s.ser", accession));
+                    GZIPInputStream gzipis = new GZIPInputStream(is, Double.valueOf(Math.pow(2, 16)).intValue());
+                    ObjectInputStream ois = new ObjectInputStream(gzipis)) {
+                this.referenceSequenceCache.put(accession, (ReferenceSequence) ois.readObject());
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+
+        return this.referenceSequenceCache.get(accession);
+    }
+
     public String getBase(String accession, int idx, boolean zeroBased) throws GeReSe4jException {
         logger.debug("ENTERING getBase()");
 
