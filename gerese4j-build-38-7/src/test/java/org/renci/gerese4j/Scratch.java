@@ -4,7 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.apache.commons.lang3.Range;
 import org.junit.Test;
-import org.renci.gerese4j.build_38_7.GeReSe4jBuild_38_7_Manager;
+import org.renci.gerese4j.build_38_7.GeReSe4jBuild_38_7;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +15,7 @@ public class Scratch {
     @Test
     public void testPosition() throws Exception {
         logger.info("start initializing");
-        GeReSe4jBuild_38_7_Manager gereseMgr = GeReSe4jBuild_38_7_Manager.getInstance();
+        GeReSe4jBuild_38_7 gereseMgr = GeReSe4jBuild_38_7.getInstance();
         logger.info("finish initializing");
 
         // grabbed these hgvs expressions from clinvar
