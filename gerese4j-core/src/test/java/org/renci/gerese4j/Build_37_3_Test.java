@@ -35,11 +35,22 @@ public class Build_37_3_Test {
         assertTrue("G".equals(gereseMgr.getBase("NC_000014.8", 23871743, true)));
         logger.info("finished search for NC_000019.9:g.41859120delG");
 
-        assertTrue("AGCAGCAGC".equals(gereseMgr.getRegion("NC_000019.9", Range.between(41858912, 41858920), true)));
+        assertTrue("AGCAGCAGC".equals(gereseMgr.getRegion("NC_000019.9", Range.between(41858911, 41858920), false)));
         logger.info("finished search for NC_000019.9:g.41858912_41858920dupAGCAGCAGC");
 
-        assertTrue("CC".equals(gereseMgr.getRegion("NC_000003.11", Range.between(184075220, 184075221), true)));
+        assertTrue("G".equals(gereseMgr.getBase("NC_000012.11", 69993886, true)));
+        
+        assertTrue("CC".equals(gereseMgr.getRegion("NC_000003.11", Range.between(184075219, 184075221), false)));
         logger.info("finished search for NC_000003.11:g.184075220dupC");
+
+        assertTrue("CCACCG".equals(gereseMgr.getRegion("NC_000012.11", Range.between(122064777, 122064783), true)));
+        assertTrue("CCACCG".equals(gereseMgr.getRegion("NC_000012.11", Range.between(122064776, 122064782), false)));
+
+        assertTrue("CCCCG".equals(gereseMgr.getRegion("NC_000012.11", Range.between(75884342, 75884347), true)));
+        assertTrue("CA".equals(gereseMgr.getRegion("NC_000012.11", Range.between(219212, 219214), true)));
+        assertTrue("AAA".equals(gereseMgr.getRegion("NC_000012.11", Range.between(296799, 296802), true)));
+        assertTrue("GAT".equals(gereseMgr.getRegion("NC_000012.11", Range.between(399671, 399674), true)));
+        assertTrue("AA".equals(gereseMgr.getRegion("NC_000012.11", Range.between(451105, 451107), true)));
 
     }
 

@@ -18,7 +18,7 @@ public class Build_38_7_Test {
     @Test
     public void testPosition() throws Exception {
         logger.info("start initializing");
-        GeReSe4jBuild gereseMgr = GeReSe4jBuild_38_7.getInstance(new File("/tmp/gerese4j"));
+        GeReSe4jBuild gereseMgr = GeReSe4jBuild_38_7.getInstance(new File("/home/jdr0887/gerese4j"));
         logger.info("finish initializing");
 
         // grabbed these hgvs expressions from clinvar
@@ -37,6 +37,10 @@ public class Build_38_7_Test {
         // this should be wicked fast since NC_000019.10 is now cached
         assertTrue("AGCAGCAGC".equals(gereseMgr.getRegion("NC_000019.10", Range.between(41353007, 41353015), true)));
         logger.info("finished search for NC_000019.10:g.41353007_41353015dupAGCAGCAGC");
+        
+        assertTrue("CCCCG".equals(gereseMgr.getRegion("NC_000012.12", Range.between(121626872, 121626876), true)));
+        assertTrue("CCCCG".equals(gereseMgr.getRegion("NC_000012.12", Range.between(121626871, 121626876), false)));
+
     }
 
     @Test
