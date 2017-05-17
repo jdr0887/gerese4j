@@ -9,7 +9,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.renci.gerese4j</groupId>
   <artifactId>gerese4j</artifactId>
-  <version>1.0.3</version>
+  <version>1.0.4-SNAPSHOT</version>
   <packaging>pom</packaging>
   <properties>
     <maven.site.plugin.skip>false</maven.site.plugin.skip>
@@ -49,7 +49,7 @@
     <url>https://github.com/jdr0887/gerese4j</url>
     <developerConnection>scm:git:git@github.com:jdr0887/gerese4j.git</developerConnection>
     <connection>scm:git:git@github.com:jdr0887/gerese4j.git</connection>
-    <tag>gerese4j-1.0.3</tag>
+    <tag>HEAD</tag>
   </scm>
   <dependencyManagement>
     <dependencies>
@@ -66,7 +66,7 @@
       <dependency>      
 	<groupId>org.renci.gerese4j</groupId>
 	<artifactId>gerese4j-core</artifactId>
-	<version>1.0.3</version>
+	<version>1.0.4-SNAPSHOT</version>
       </dependency>      
       <dependency>
       	<groupId>org.slf4j</groupId>
