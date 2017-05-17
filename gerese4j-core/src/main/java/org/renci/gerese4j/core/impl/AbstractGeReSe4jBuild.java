@@ -257,9 +257,9 @@ public abstract class AbstractGeReSe4jBuild implements GeReSe4jBuild {
         }
 
         if (zeroBased) {
-            return referenceSequence.getSequence().substring(range.getMinimum() - 1, range.getMaximum());
+            return referenceSequence.getSequence().substring(range.getMinimum() - 1, range.getMaximum() - 1);
         } else {
-            return referenceSequence.getSequence().substring(range.getMinimum(), range.getMaximum() + 1);
+            return referenceSequence.getSequence().substring(range.getMinimum(), range.getMaximum());
         }
     }
 
