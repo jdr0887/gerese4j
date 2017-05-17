@@ -2,13 +2,13 @@
   <parent>
     <groupId>org.renci.gerese4j</groupId>
     <artifactId>gerese4j</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.2</version>
   </parent>
   <name>RENCI :: GeReSe4j :: Core</name>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.renci.gerese4j</groupId>
   <artifactId>gerese4j-core</artifactId>
-  <version>1.0.2-SNAPSHOT</version>
+  <version>1.0.2</version>
   <packaging>bundle</packaging>
   <properties>
     <maven.site.plugin.skip>true</maven.site.plugin.skip>    
