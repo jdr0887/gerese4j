@@ -60,31 +60,34 @@ public abstract class AbstractGeReSe4jBuild implements GeReSe4jBuild {
 
         logger.debug("gerese4jHome.getAbsolutePath(): {}", gerese4jHome.getAbsolutePath());
         if (gerese4jHome != null && gerese4jHome.exists()) {
+            File buildDir = new File(gerese4jHome, getBuild().toString());
             if (indices.isEmpty()) {
                 logger.info("loading indices");
-                File buildDir = new File(gerese4jHome, getBuild().toString());
                 File indicesFile = new File(buildDir, "indices.ser");
-                try (FileInputStream fis = new FileInputStream(indicesFile);
-                        GZIPInputStream gzipis = new GZIPInputStream(fis, Double.valueOf(Math.pow(2, 16)).intValue());
-                        ObjectInputStream ois = new ObjectInputStream(gzipis)) {
-                    indices.addAll((Set<String>) ois.readObject());
-                    logger.info("indices.size(): {}", indices.size());
-                } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
+                if (indicesFile.exists()) {
+                    try (FileInputStream fis = new FileInputStream(indicesFile);
+                            GZIPInputStream gzipis = new GZIPInputStream(fis, Double.valueOf(Math.pow(2, 16)).intValue());
+                            ObjectInputStream ois = new ObjectInputStream(gzipis)) {
+                        indices.addAll((Set<String>) ois.readObject());
+                        logger.info("indices.size(): {}", indices.size());
+                    } catch (Exception e) {
+                        logger.error(e.getMessage(), e);
+                    }
                 }
             }
 
             if (headers.isEmpty()) {
                 logger.info("loading headers");
-                File buildDir = new File(gerese4jHome, getBuild().toString());
                 File headersFile = new File(buildDir, "headers.ser");
-                try (FileInputStream fis = new FileInputStream(headersFile);
-                        GZIPInputStream gzipis = new GZIPInputStream(fis, Double.valueOf(Math.pow(2, 16)).intValue());
-                        ObjectInputStream ois = new ObjectInputStream(gzipis)) {
-                    headers.putAll((Map<String, String>) ois.readObject());
-                    logger.info("headers.size(): {}", headers.size());
-                } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
+                if (headersFile.exists()) {
+                    try (FileInputStream fis = new FileInputStream(headersFile);
+                            GZIPInputStream gzipis = new GZIPInputStream(fis, Double.valueOf(Math.pow(2, 16)).intValue());
+                            ObjectInputStream ois = new ObjectInputStream(gzipis)) {
+                        headers.putAll((Map<String, String>) ois.readObject());
+                        logger.info("headers.size(): {}", headers.size());
+                    } catch (Exception e) {
+                        logger.error(e.getMessage(), e);
+                    }
                 }
             }
 
