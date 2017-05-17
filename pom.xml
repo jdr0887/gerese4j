@@ -176,6 +176,13 @@
     <plugins>
       <plugin>
 	<groupId>org.apache.maven.plugins</groupId>
+	<artifactId>maven-site-plugin</artifactId>
+	<configuration>
+          <skip>${maven.site.plugin.skip}</skip>
+	</configuration>
+      </plugin>
+      <plugin>
+	<groupId>org.apache.maven.plugins</groupId>
 	<artifactId>maven-compiler-plugin</artifactId>
 	<configuration>
 	  <source>1.8</source>
