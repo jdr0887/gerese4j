@@ -2,6 +2,8 @@ package org.renci.gerese4j;
 
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
+
 import org.apache.commons.lang3.Range;
 import org.junit.Test;
 import org.renci.gerese4j.core.GeReSe4jBuild;
@@ -16,7 +18,7 @@ public class Build_38_7_Test {
     @Test
     public void testPosition() throws Exception {
         logger.info("start initializing");
-        GeReSe4jBuild gereseMgr = GeReSe4jBuild_38_7.getInstance();
+        GeReSe4jBuild gereseMgr = GeReSe4jBuild_38_7.getInstance(new File("/tmp/gerese4j"));
         logger.info("finish initializing");
 
         // grabbed these hgvs expressions from clinvar
@@ -35,6 +37,12 @@ public class Build_38_7_Test {
         // this should be wicked fast since NC_000019.10 is now cached
         assertTrue("AGCAGCAGC".equals(gereseMgr.getRegion("NC_000019.10", Range.between(41353007, 41353015), true)));
         logger.info("finished search for NC_000019.10:g.41353007_41353015dupAGCAGCAGC");
+    }
+
+    @Test
+    public void testSerialize() throws Exception {
+        GeReSe4jBuild gereseMgr = GeReSe4jBuild_38_7.getInstance(new File("/tmp/gerese4j"));
+        gereseMgr.serialize();
     }
 
 }
