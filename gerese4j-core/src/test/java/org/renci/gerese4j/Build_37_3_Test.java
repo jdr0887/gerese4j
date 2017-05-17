@@ -39,7 +39,7 @@ public class Build_37_3_Test {
         logger.info("finished search for NC_000019.9:g.41858912_41858920dupAGCAGCAGC");
 
         assertTrue("G".equals(gereseMgr.getBase("NC_000012.11", 69993886, true)));
-        
+
         assertTrue("CC".equals(gereseMgr.getRegion("NC_000003.11", Range.between(184075219, 184075221), false)));
         logger.info("finished search for NC_000003.11:g.184075220dupC");
 

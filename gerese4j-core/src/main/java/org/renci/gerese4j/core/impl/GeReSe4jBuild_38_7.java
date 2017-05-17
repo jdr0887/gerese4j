@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,17 +19,15 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
 import org.renci.gerese4j.core.BuildType;
 import org.renci.gerese4j.core.FTPFactory;
-import org.renci.gerese4j.core.GeReSe4jBuild;
 import org.renci.gerese4j.core.GeReSe4jException;
 import org.renci.gerese4j.core.ReferenceSequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GeReSe4jBuild_38_7 extends AbstractGeReSe4jBuild  {
+public class GeReSe4jBuild_38_7 extends AbstractGeReSe4jBuild {
 
     private static final Logger logger = LoggerFactory.getLogger(GeReSe4jBuild_38_7.class);
 
