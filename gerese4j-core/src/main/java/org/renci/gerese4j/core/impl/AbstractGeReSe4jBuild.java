@@ -45,7 +45,7 @@ public abstract class AbstractGeReSe4jBuild implements GeReSe4jBuild {
         this.headers = new HashMap<>();
     }
 
-    protected void init() throws GeReSe4jException {
+    public void init() throws GeReSe4jException {
         logger.debug("ENTERING init()");
 
         String gerese4jHomeFromEnv = System.getenv("GERESE4j_HOME");
@@ -69,7 +69,7 @@ public abstract class AbstractGeReSe4jBuild implements GeReSe4jBuild {
                             GZIPInputStream gzipis = new GZIPInputStream(fis, Double.valueOf(Math.pow(2, 16)).intValue());
                             ObjectInputStream ois = new ObjectInputStream(gzipis)) {
                         indices.addAll((Set<String>) ois.readObject());
-                        logger.info("indices.size(): {}", indices.size());
+                        logger.debug("indices.size(): {}", indices.size());
                     } catch (Exception e) {
                         logger.error(e.getMessage(), e);
                     }
@@ -84,7 +84,7 @@ public abstract class AbstractGeReSe4jBuild implements GeReSe4jBuild {
                             GZIPInputStream gzipis = new GZIPInputStream(fis, Double.valueOf(Math.pow(2, 16)).intValue());
                             ObjectInputStream ois = new ObjectInputStream(gzipis)) {
                         headers.putAll((Map<String, String>) ois.readObject());
-                        logger.info("headers.size(): {}", headers.size());
+                        logger.debug("headers.size(): {}", headers.size());
                     } catch (Exception e) {
                         logger.error(e.getMessage(), e);
                     }
