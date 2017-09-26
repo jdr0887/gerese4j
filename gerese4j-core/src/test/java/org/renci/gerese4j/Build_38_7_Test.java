@@ -34,6 +34,12 @@ public class Build_38_7_Test {
         assertTrue("A".equals(gereseMgr.getBase("NC_000001.11", 11022530, true)));
         logger.info("finished search for NC_000001.11:g.11022530dupA");
 
+        assertTrue("C".equals(gereseMgr.getBase("NC_000019.10", 41422964, false)));
+
+        gereseMgr.getRegion("NC_000019.10", Range.between(41422963, 41422967), false);
+
+        assertTrue("CA".equals(gereseMgr.getRegion("NC_000001.11", Range.between(1223184, 1223186), true)));
+
         // this should be wicked fast since NC_000019.10 is now cached
         assertTrue("AGCAGCAGC".equals(gereseMgr.getRegion("NC_000019.10", Range.between(41353007, 41353015), true)));
         logger.info("finished search for NC_000019.10:g.41353007_41353015dupAGCAGCAGC");
