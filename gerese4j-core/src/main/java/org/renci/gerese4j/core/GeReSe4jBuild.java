@@ -29,4 +29,6 @@ public interface GeReSe4jBuild {
 
     public void serialize() throws GeReSe4jException;
 
+    public void init() throws GeReSe4jException;
+
 }
