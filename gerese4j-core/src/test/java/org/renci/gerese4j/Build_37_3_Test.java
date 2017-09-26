@@ -55,6 +55,14 @@ public class Build_37_3_Test {
     }
 
     @Test
+    public void scratch() throws Exception {
+        logger.info("start initializing");
+        GeReSe4jBuild gereseMgr = GeReSe4jBuild_37_3.getInstance(new File("/home/jdr0887/gerese4j"));
+        logger.info("finish initializing");
+        gereseMgr.getRegion("NC_000021.8", Range.between(46324129, 46324131), false);
+    }
+
+    @Test
     public void testSerialize() {
 
         try {
